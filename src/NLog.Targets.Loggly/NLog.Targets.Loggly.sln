@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLog.Targets.Loggly", "NLog.Targets.Loggly.csproj", "{FBA31C0A-88AC-4362-A6B2-6C6F6BEA9553}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{8CD84A19-FA81-406E-94C6-CA20294B0F1E}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FBA31C0A-88AC-4362-A6B2-6C6F6BEA9553}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBA31C0A-88AC-4362-A6B2-6C6F6BEA9553}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBA31C0A-88AC-4362-A6B2-6C6F6BEA9553}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBA31C0A-88AC-4362-A6B2-6C6F6BEA9553}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
