@@ -29,39 +29,30 @@ namespace NLog.Targets
     [Target("Loggly")]
     public class Loggly : NLog.Targets.TargetWithLayout
     {
-        private LogglyLogger logger;
-
-        private string inputKey;
-
         public Loggly()
         {
             
         }
 
         [RequiredParameter]
-        public string InputKey
-        {
-            get
-            {
-                return this.inputKey;
-            }
-            set
-            {
-                this.inputKey = value;
-                this.logger = new LogglyLogger(this.inputKey);
-            }
-        }
+        public string InputKey { get; set; }
+
+        public string AlternativeUrl { get; set; }
         
         protected override void Write(LogEventInfo logEvent)
         {
+            var logger = new LogglyLogger(
+                this.InputKey,
+                this.AlternativeUrl == null ? null : string.Format("{0}/", this.AlternativeUrl.TrimEnd('/')));
+
             var logMessage = this.Layout.Render(logEvent);
             if(logEvent.Properties != null && logEvent.Properties.Count > 0)
             {
-                this.logger.Log(logMessage, logEvent.Level.Name, logEvent.Properties.ToDictionary(k => k.Key != null ? k.Key.ToString() : string.Empty, v => v.Value));    
+                logger.Log(logMessage, logEvent.Level.Name, logEvent.Properties.ToDictionary(k => k.Key != null ? k.Key.ToString() : string.Empty, v => v.Value));
             }
             else
             {
-                this.logger.Log(logMessage, logEvent.Level.Name);
+                logger.Log(logMessage, logEvent.Level.Name);
             }
         } 
     }
