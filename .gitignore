@@ -38,9 +38,3 @@ StyleCop.*
 # exclude other locations
 _UpgradeReport_Files/
 _ReSharper.*/
-
-# keep assembly references
-!/libs/*.*
-*.nupkg
-!nuget.exe
-!.nuget/*.*
