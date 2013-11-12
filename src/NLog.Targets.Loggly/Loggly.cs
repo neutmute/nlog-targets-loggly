@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
 // <copyright file="Loggly.cs">
-// Copyright 2012 Joe Fitzgerald
+// Copyright 2013 Joe Fitzgerald
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,37 +16,28 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System.Linq;
 using NLog.Config;
 using LogglyLogger = Loggly.Logger;
 
 namespace NLog.Targets
 {
-    using System.Linq;
-
     /// <summary>
     /// A Loggly NLog Target
     /// </summary>
     [Target("Loggly")]
-    public class Loggly : NLog.Targets.TargetWithLayout
+    public class Loggly : TargetWithLayout
     {
-        public Loggly()
-        {
-            
-        }
-
         [RequiredParameter]
         public string InputKey { get; set; }
 
         public string AlternativeUrl { get; set; }
-        
+
         protected override void Write(LogEventInfo logEvent)
         {
-            var logger = new LogglyLogger(
-                this.InputKey,
-                this.AlternativeUrl == null ? null : string.Format("{0}/", this.AlternativeUrl.TrimEnd('/')));
-
-            var logMessage = this.Layout.Render(logEvent);
-            if(logEvent.Properties != null && logEvent.Properties.Count > 0)
+            var logger = new LogglyLogger(InputKey, string.IsNullOrEmpty(AlternativeUrl) ? null : string.Format("{0}/", AlternativeUrl.TrimEnd('/')));
+            var logMessage = Layout.Render(logEvent);
+            if (logEvent.Properties != null && logEvent.Properties.Count > 0)
             {
                 logger.Log(logMessage, logEvent.Level.Name, logEvent.Properties.ToDictionary(k => k.Key != null ? k.Key.ToString() : string.Empty, v => v.Value));
             }
@@ -54,6 +45,6 @@ namespace NLog.Targets
             {
                 logger.Log(logMessage, logEvent.Level.Name);
             }
-        } 
+        }
     }
 }
