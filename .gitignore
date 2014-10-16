@@ -39,3 +39,4 @@ StyleCop.*
 _UpgradeReport_Files/
 _ReSharper.*/
 src/NLog.Targets.Loggly/packages/
+packages/
