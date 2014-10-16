@@ -16,6 +16,8 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using NLog.Config;
 using LogglyLogger = Loggly.Logger;
@@ -43,14 +45,32 @@ namespace NLog.Targets
             var logger = new LogglyLogger(InputKey, alternateUrl, appName);
             
             var logMessage = Layout.Render(logEvent);
-            if (logEvent.Properties != null && logEvent.Properties.Count > 0)
+
+            if (logEvent.Properties != null)
             {
-                logger.Log(logMessage, logEvent.Level.Name, logEvent.Properties.ToDictionary(k => k.Key != null ? k.Key.ToString() : string.Empty, v => v.Value));
+                AddPropertyIfNotExists(logEvent, "host", Environment.MachineName);
+
+                if (logEvent.Exception != null)
+                {
+                    AddPropertyIfNotExists(logEvent, "exception", logEvent.Exception);
+                }
+
+                var propertyDictionary = logEvent.Properties.ToDictionary(k => k.Key != null ? k.Key.ToString() : string.Empty, v => v.Value);
+                logger.Log(logMessage, logEvent.Level.Name, propertyDictionary);
             }
             else
             {
                 logger.Log(logMessage, logEvent.Level.Name);
             }
         }
+
+        private void AddPropertyIfNotExists(LogEventInfo eventInfo, string name, object value)
+        {
+            if (!eventInfo.Properties.ContainsKey(name))
+            {
+                eventInfo.Properties.Add(new KeyValuePair<object, object>(name, value));
+            }
+        }
+
     }
 }
