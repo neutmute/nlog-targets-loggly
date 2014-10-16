@@ -31,11 +31,17 @@ namespace NLog.Targets
         [RequiredParameter]
         public string InputKey { get; set; }
 
+        public string ApplicationName { get; set; }
+
         public string AlternativeUrl { get; set; }
 
         protected override void Write(LogEventInfo logEvent)
         {
-            var logger = new LogglyLogger(InputKey, string.IsNullOrEmpty(AlternativeUrl) ? null : string.Format("{0}/", AlternativeUrl.TrimEnd('/')));
+            var alternateUrl = string.IsNullOrEmpty(AlternativeUrl) ? null : string.Format("{0}/", AlternativeUrl.TrimEnd('/'));
+            var appName = string.IsNullOrEmpty(ApplicationName) ? "loggly-csharp-app" : ApplicationName;
+
+            var logger = new LogglyLogger(InputKey, alternateUrl, appName);
+            
             var logMessage = Layout.Render(logEvent);
             if (logEvent.Properties != null && logEvent.Properties.Count > 0)
             {
