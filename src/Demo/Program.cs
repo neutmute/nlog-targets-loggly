@@ -26,7 +26,7 @@ namespace Demo
             eventInfo2.Properties.Add("CustomParameter", 987654);
             Log.Log(eventInfo2);
 
-            Console.WriteLine("Press any key...");
+            Log.Info("Press any key...");
             Console.ReadKey();
         }
     }

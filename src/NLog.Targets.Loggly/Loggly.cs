@@ -49,6 +49,7 @@ namespace NLog.Targets
             if (logEvent.Properties != null)
             {
                 AddPropertyIfNotExists(logEvent, "host", Environment.MachineName);
+                AddPropertyIfNotExists(logEvent, "sequenceID", logEvent.SequenceID);
 
                 if (logEvent.Exception != null)
                 {
