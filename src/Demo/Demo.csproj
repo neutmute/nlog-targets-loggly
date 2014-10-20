@@ -58,6 +58,8 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="example.loggly.user.config" />
+    <None Include="loggly.user.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

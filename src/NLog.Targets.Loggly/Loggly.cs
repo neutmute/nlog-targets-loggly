@@ -20,6 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Loggly;
+using Loggly.Config;
+using Loggly.Transports.Syslog;
 using NLog.Config;
 
 namespace NLog.Targets
@@ -36,22 +38,47 @@ namespace NLog.Targets
             var loggly = new LogglyClient();
             var logMessage = Layout.Render(logEvent);
 
+            var options = new MessageOptions();
+            var isHttpTransport = LogglyConfig.Instance.MessageTransport == MessageTransport.Http;
+
+            // for syslog
+            options.MessageId = logEvent.SequenceID;
+            options.Level = MapLevel(logEvent.Level);
+            
             if (logEvent.Properties != null)
             {
-                AddPropertyIfNotExists(logEvent, "host", Environment.MachineName);
-                AddPropertyIfNotExists(logEvent, "sequenceID", logEvent.SequenceID);
-
                 if (logEvent.Exception != null)
                 {
                     AddPropertyIfNotExists(logEvent, "exception", logEvent.Exception);
                 }
+                if (isHttpTransport)
+                {
+                    // syslog will capture these via options
+                    AddPropertyIfNotExists(logEvent, "sequenceId", logEvent.SequenceID);
+                    AddPropertyIfNotExists(logEvent, "level", logEvent.Level);
+                }
+                AddProperty(logEvent, "message", logMessage);
 
                 var propertyDictionary = logEvent.Properties.ToDictionary(k => k.Key != null ? k.Key.ToString() : string.Empty, v => v.Value);
-                loggly.Log(logMessage, logEvent.Level.Name, propertyDictionary);
+                loggly.Log(options, propertyDictionary);
             }
             else
             {
-                loggly.Log(logMessage, logEvent.Level.Name);
+                loggly.Log(logMessage); // should see a properties object but just in case
+            }
+        }
+
+        private Level MapLevel(LogLevel nLogLevel)
+        {
+            switch (nLogLevel.Name)
+            {
+                case "Debug": return Level.Debug;
+                case "Error": return Level.Error;
+                case "Fatal": return Level.Critical;
+                case "Info": return Level.Information;
+                case "Trace": return Level.Debug; // syslog doesn't have anything below debug. Mashed debug and trace together
+                case "Warn": return Level.Warning;
+                default: LogglyException.Throw("Failed to map level"); return Level.Alert;
             }
         }
 
@@ -59,8 +86,13 @@ namespace NLog.Targets
         {
             if (!eventInfo.Properties.ContainsKey(name))
             {
-                eventInfo.Properties.Add(new KeyValuePair<object, object>(name, value));
+                AddProperty(eventInfo, name, value);
             }
+        }
+
+        private void AddProperty(LogEventInfo eventInfo, string name, object value)
+        {
+            eventInfo.Properties.Add(new KeyValuePair<object, object>(name, value));
         }
     }
 }
