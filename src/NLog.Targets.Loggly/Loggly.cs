@@ -19,31 +19,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Loggly;
 using NLog.Config;
-using LogglyLogger = Loggly.Logger;
 
 namespace NLog.Targets
 {
     /// <summary>
-    /// A Loggly NLog Target
+    /// A Loggly target for NLog
     /// </summary>
     [Target("Loggly")]
     public class Loggly : TargetWithLayout
     {
-        [RequiredParameter]
-        public string InputKey { get; set; }
-
-        public string ApplicationName { get; set; }
-
-        public string AlternativeUrl { get; set; }
 
         protected override void Write(LogEventInfo logEvent)
         {
-            var alternateUrl = string.IsNullOrEmpty(AlternativeUrl) ? null : string.Format("{0}/", AlternativeUrl.TrimEnd('/'));
-            var appName = string.IsNullOrEmpty(ApplicationName) ? "loggly-csharp-app" : ApplicationName;
-
-            var logger = new LogglyLogger(InputKey, alternateUrl, appName);
-            
+            var loggly = new LogglyClient();
             var logMessage = Layout.Render(logEvent);
 
             if (logEvent.Properties != null)
@@ -57,11 +47,11 @@ namespace NLog.Targets
                 }
 
                 var propertyDictionary = logEvent.Properties.ToDictionary(k => k.Key != null ? k.Key.ToString() : string.Empty, v => v.Value);
-                logger.Log(logMessage, logEvent.Level.Name, propertyDictionary);
+                loggly.Log(logMessage, logEvent.Level.Name, propertyDictionary);
             }
             else
             {
-                logger.Log(logMessage, logEvent.Level.Name);
+                loggly.Log(logMessage, logEvent.Level.Name);
             }
         }
 
@@ -72,6 +62,5 @@ namespace NLog.Targets
                 eventInfo.Properties.Add(new KeyValuePair<object, object>(name, value));
             }
         }
-
     }
 }

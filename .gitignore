@@ -40,3 +40,4 @@ _UpgradeReport_Files/
 _ReSharper.*/
 src/NLog.Targets.Loggly/packages/
 packages/
+src/Demo/loggly.user.config
