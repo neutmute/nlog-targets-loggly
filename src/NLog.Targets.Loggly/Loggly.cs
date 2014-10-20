@@ -55,7 +55,7 @@ namespace NLog.Targets
                 {
                     // syslog will capture these via options
                     AddPropertyIfNotExists(logEvent, "sequenceId", logEvent.SequenceID);
-                    AddPropertyIfNotExists(logEvent, "level", logEvent.Level);
+                    AddPropertyIfNotExists(logEvent, "level", logEvent.Level.Name);
                 }
                 AddProperty(logEvent, "message", logMessage);
 
