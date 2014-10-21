@@ -1,6 +1,5 @@
 # exclude vs files
 *.obj
-*.exe
 *.exp
 *.pdb
 *.dll
@@ -41,3 +40,4 @@ _ReSharper.*/
 src/NLog.Targets.Loggly/packages/
 packages/
 src/Demo/loggly.user.config
+*.nupkg

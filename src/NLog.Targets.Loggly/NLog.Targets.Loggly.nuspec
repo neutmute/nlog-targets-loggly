@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>NLog.Targets.Loggly</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Joe Fitzgerald</authors>
+    <owners>Joe Fitzgerald</owners>
+    <projectUrl>https://github.com/joefitzgerald/nlog-targets-loggly</projectUrl>
+	  <licenseUrl>https://raw.githubusercontent.com/joefitzgerald/nlog-targets-loggly/master/LICENSE-2.0.txt</licenseUrl>
+	  <iconUrl>http://nlog-project.org/N.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <language>en-US</language>
+    <tags>NLog Loggly</tags>
+  </metadata>
+</package>
