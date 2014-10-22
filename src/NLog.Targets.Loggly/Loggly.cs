@@ -39,7 +39,7 @@ namespace NLog.Targets
             var logMessage = Layout.Render(logEvent);
 
             var options = new MessageOptions();
-            var isHttpTransport = LogglyConfig.Instance.MessageTransport == MessageTransport.Http;
+            var isHttpTransport = LogglyConfig.Instance.Transport.LogTransport == LogTransport.Https;
 
             // for syslog
             options.MessageId = logEvent.SequenceID;

@@ -8,7 +8,7 @@
     <owners>Joe Fitzgerald</owners>
     <projectUrl>https://github.com/joefitzgerald/nlog-targets-loggly</projectUrl>
 	  <licenseUrl>https://raw.githubusercontent.com/joefitzgerald/nlog-targets-loggly/master/LICENSE-2.0.txt</licenseUrl>
-	  <iconUrl>http://nlog-project.org/N.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/neutmute/loggly-csharp/master/SolutionItems/loggly.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <language>en-US</language>
