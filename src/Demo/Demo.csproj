@@ -66,6 +66,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\loggly-csharp\source\loggly.Config\Loggly.Config.csproj">
+      <Project>{58a100ce-cc7e-43bf-a054-d28648f092ac}</Project>
+      <Name>Loggly.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NLog.Targets.Loggly\NLog.Targets.Loggly.csproj">
       <Project>{fba31c0a-88ac-4362-a6b2-6c6f6bea9553}</Project>
       <Name>NLog.Targets.Loggly</Name>

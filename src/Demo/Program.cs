@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Loggly.Config;
 using NLog;
 
 namespace Demo
@@ -13,7 +14,7 @@ namespace Demo
         static void Main(string[] args)
         {
             // Normal logging
-            Log.Info("Demo starting up");
+            Log.Info("Demo starting up using loggly transport={0}", LogglyConfig.Instance.Transport);
 
             // Adding custom parameter
             var eventInfo = new LogEventInfo(LogLevel.Info, "MyLogName", "event info test message");

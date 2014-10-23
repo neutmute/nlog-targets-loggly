@@ -56,6 +56,7 @@ namespace NLog.Targets
                     // syslog will capture these via options
                     AddPropertyIfNotExists(logEvent, "sequenceId", logEvent.SequenceID);
                     AddPropertyIfNotExists(logEvent, "level", logEvent.Level.Name);
+                    AddPropertyIfNotExists(logEvent, "timestamp", DateTime.Now.ToSyslog()); //https://www.loggly.com/docs/automated-parsing/#json
                 }
                 AddProperty(logEvent, "message", logMessage);
 
