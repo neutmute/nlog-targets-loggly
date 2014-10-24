@@ -36,14 +36,19 @@ namespace NLog.Targets
         protected override void Write(LogEventInfo logEvent)
         {
             var loggly = new LogglyClient();
+            
+            // The unwrapped event has a zero sequenceId, grab it before unwrapping;
+            var sequenceId = logEvent.SequenceID;
+
+            logEvent = GetCorrectEvent(logEvent);
             var logMessage = Layout.Render(logEvent);
 
             var options = new MessageOptions();
             var isHttpTransport = LogglyConfig.Instance.Transport.LogTransport == LogTransport.Https;
 
             // for syslog
-            options.MessageId = logEvent.SequenceID;
-            options.Level = MapLevel(logEvent.Level);
+            options.MessageId = sequenceId;
+            options.Level = ToSyslogLevel(logEvent.Level);
             
             if (logEvent.Properties != null)
             {
@@ -54,7 +59,7 @@ namespace NLog.Targets
                 if (isHttpTransport)
                 {
                     // syslog will capture these via options
-                    AddPropertyIfNotExists(logEvent, "sequenceId", logEvent.SequenceID);
+                    AddPropertyIfNotExists(logEvent, "sequenceId", sequenceId);
                     AddPropertyIfNotExists(logEvent, "level", logEvent.Level.Name);
                     AddPropertyIfNotExists(logEvent, "timestamp", DateTime.Now.ToSyslog()); //https://www.loggly.com/docs/automated-parsing/#json
                 }
@@ -69,7 +74,28 @@ namespace NLog.Targets
             }
         }
 
-        private Level MapLevel(LogLevel nLogLevel)
+        /// <summary>
+        /// Async nLog wraps the original event in a new one (not sure why?)
+        /// Unwrap the original and use that so we can get all our parameters
+        /// http://stackoverflow.com/questions/23272439/nlog-event-contextitem-xxxx-not-writing-in-logging-database
+        /// </summary>
+        public static LogEventInfo GetCorrectEvent(LogEventInfo inboundEventInfo)
+        {
+            LogEventInfo outputEventInfo = inboundEventInfo;
+            if (inboundEventInfo.Parameters != null && inboundEventInfo.Parameters.Length == 1)
+            {
+                var nestedEvent = inboundEventInfo.Parameters[0] as LogEventInfo;
+                if (nestedEvent != null)
+                {
+                    outputEventInfo = nestedEvent;
+                    outputEventInfo.Level = inboundEventInfo.Level;
+                }
+            }
+            return outputEventInfo;
+        }
+
+
+        private Level ToSyslogLevel(LogLevel nLogLevel)
         {
             switch (nLogLevel.Name)
             {
