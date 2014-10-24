@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NLog.Targets.Loggly", "src\NLog.Targets.Loggly\NLog.Targets.Loggly.csproj", "{FBA31C0A-88AC-4362-A6B2-6C6F6BEA9553}"
 EndProject
@@ -13,12 +13,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D3D526
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "src\Demo\Demo.csproj", "{77B6233C-3569-4473-B6FA-49E4525F27E4}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Temp", "Temp", "{7640DC3E-AA32-4284-8363-0A55A121A7F8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loggly", "..\loggly-csharp\source\Loggly\Loggly.csproj", "{F66349BA-29A6-4336-BA81-993170FC9963}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loggly.Config", "..\loggly-csharp\source\loggly.Config\Loggly.Config.csproj", "{58A100CE-CC7E-43BF-A054-D28648F092AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,20 +28,8 @@ Global
 		{77B6233C-3569-4473-B6FA-49E4525F27E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{77B6233C-3569-4473-B6FA-49E4525F27E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{77B6233C-3569-4473-B6FA-49E4525F27E4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F66349BA-29A6-4336-BA81-993170FC9963}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F66349BA-29A6-4336-BA81-993170FC9963}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F66349BA-29A6-4336-BA81-993170FC9963}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F66349BA-29A6-4336-BA81-993170FC9963}.Release|Any CPU.Build.0 = Release|Any CPU
-		{58A100CE-CC7E-43BF-A054-D28648F092AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{58A100CE-CC7E-43BF-A054-D28648F092AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{58A100CE-CC7E-43BF-A054-D28648F092AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{58A100CE-CC7E-43BF-A054-D28648F092AC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{F66349BA-29A6-4336-BA81-993170FC9963} = {7640DC3E-AA32-4284-8363-0A55A121A7F8}
-		{58A100CE-CC7E-43BF-A054-D28648F092AC} = {7640DC3E-AA32-4284-8363-0A55A121A7F8}
 	EndGlobalSection
 EndGlobal
