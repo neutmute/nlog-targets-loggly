@@ -41,37 +41,44 @@ namespace NLog.Targets
             var sequenceId = logEvent.SequenceID;
 
             logEvent = GetCorrectEvent(logEvent);
+
+            if (logEvent.Properties.ContainsKey("syslog-suppress"))
+            {
+                /*
+                 * logging delimiting messages like "--------------" makes sense for pretty printing to file log targets
+                 * but not so much for loggly. Support suppression.
+                 */
+                return;
+            }
+
             var logMessage = Layout.Render(logEvent);
 
-            var options = new MessageOptions();
+            var logglyEvent = new LogglyEvent();
             var isHttpTransport = LogglyConfig.Instance.Transport.LogTransport == LogTransport.Https;
 
-            // for syslog
-            options.MessageId = sequenceId;
-            options.Level = ToSyslogLevel(logEvent.Level);
+            logglyEvent.Timestamp = logEvent.TimeStamp;
+            logglyEvent.Syslog.MessageId = sequenceId;
+            logglyEvent.Syslog.Level = ToSyslogLevel(logEvent.Level); 
             
-            if (logEvent.Properties != null)
+            if (logEvent.Exception != null)
             {
-                if (logEvent.Exception != null)
-                {
-                    AddPropertyIfNotExists(logEvent, "exception", logEvent.Exception);
-                }
-                if (isHttpTransport)
-                {
-                    // syslog will capture these via options
-                    AddPropertyIfNotExists(logEvent, "sequenceId", sequenceId);
-                    AddPropertyIfNotExists(logEvent, "level", logEvent.Level.Name);
-                    AddPropertyIfNotExists(logEvent, "timestamp", DateTime.Now.ToSyslog()); //https://www.loggly.com/docs/automated-parsing/#json
-                }
-                AddProperty(logEvent, "message", logMessage);
+                logglyEvent.Data.Add("exception", logEvent.Exception);
+            }
 
-                var propertyDictionary = logEvent.Properties.ToDictionary(k => k.Key != null ? k.Key.ToString() : string.Empty, v => v.Value);
-                loggly.Log(options, propertyDictionary);
-            }
-            else
+            if (isHttpTransport)
             {
-                loggly.Log(logMessage); // should see a properties object but just in case
+                // syslog will capture these via the header
+                logglyEvent.Data.Add("sequenceId", sequenceId);
+                logglyEvent.Data.Add("level", logEvent.Level.Name);
             }
+
+            logglyEvent.Data.Add("message", logMessage);
+            foreach (var key in logEvent.Properties.Keys)
+            {
+                logglyEvent.Data.AddIfAbsent(key.ToString(), logEvent.Properties[key]);
+            }
+            
+            loggly.Log(logglyEvent);
         }
 
         /// <summary>
@@ -93,8 +100,7 @@ namespace NLog.Targets
             }
             return outputEventInfo;
         }
-
-
+        
         private Level ToSyslogLevel(LogLevel nLogLevel)
         {
             switch (nLogLevel.Name)
@@ -107,19 +113,6 @@ namespace NLog.Targets
                 case "Warn": return Level.Warning;
                 default: LogglyException.Throw("Failed to map level"); return Level.Alert;
             }
-        }
-
-        private void AddPropertyIfNotExists(LogEventInfo eventInfo, string name, object value)
-        {
-            if (!eventInfo.Properties.ContainsKey(name))
-            {
-                AddProperty(eventInfo, name, value);
-            }
-        }
-
-        private void AddProperty(LogEventInfo eventInfo, string name, object value)
-        {
-            eventInfo.Properties.Add(new KeyValuePair<object, object>(name, value));
         }
     }
 }

@@ -38,6 +38,8 @@ namespace Demo
             LogWithObjectMetadata();
             LogExceptionWithObjectMetadata();
 
+            LogToTargetsButSuppressToLoggly();
+
             Console.WriteLine("Press any key...");
             Console.ReadKey();
         }
@@ -61,6 +63,13 @@ namespace Demo
             var eventInfo2 = new LogEventInfo(LogLevel.Error, "MyLogName", "something broke");
             eventInfo2.Exception = new Exception("This is a really bad exception");
             eventInfo2.Properties.Add("CustomParameter", 987654);
+            Log.Log(eventInfo2);
+        }
+
+        private static void LogToTargetsButSuppressToLoggly()
+        {
+            var eventInfo2 = new LogEventInfo(LogLevel.Info, "MyLogName", "weeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee!");
+            eventInfo2.Properties.Add("syslog-suppress", true);
             Log.Log(eventInfo2);
         }
     }
