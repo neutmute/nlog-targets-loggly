@@ -75,7 +75,7 @@ namespace NLog.Targets
             logglyEvent.Data.Add("message", logMessage);
             foreach (var key in logEvent.Properties.Keys)
             {
-                logglyEvent.Data.AddSafe(key.ToString(), logEvent.Properties[key]);
+                logglyEvent.Data.AddIfAbsent(key.ToString(), logEvent.Properties[key]);
             }
             
             loggly.Log(logglyEvent);
