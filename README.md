@@ -31,3 +31,7 @@ See below for sample NLog config (loggly config not shown).
 		</rules>
 	</nlog>
 
+### Suppression
+Sometimes you might emit something to a flat file log that doesn't make sense in loggly, such as a delimiting line of dashes: ---------
+
+Add a property to your nLog event with the name `syslog-suppress` to filter these out so they don't transmit to loggly.
