@@ -46,7 +46,8 @@ namespace Demo
         
         private static void StandardLogging()
         {
-            Log.Info("NLog.Targarts.Loggly demo starting up using loggly transport={0}", LogglyConfig.Instance.Transport);
+            var nLogVersion = typeof(Logger).Assembly.GetName().Version;
+            Log.Info("NLog.Targarts.Loggly demo starting up using loggly transport={0}, nlog version={1}", LogglyConfig.Instance.Transport, nLogVersion);
         }
         private static void StandardLogException()
         {
