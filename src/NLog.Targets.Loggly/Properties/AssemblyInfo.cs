@@ -12,5 +12,5 @@ using System.Runtime.InteropServices;
     [assembly: AssemblyInformationalVersion("4.5.2-alpha-v4")]
 #else
     [assembly: AssemblyConfiguration("Release")]
-    [assembly: AssemblyInformationalVersion("4.5.2")]
+    //[assembly: AssemblyInformationalVersion("4.5.2")]
 #endif
