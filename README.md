@@ -35,3 +35,16 @@ See below for sample NLog config (loggly config not shown).
 Sometimes you might emit something to a flat file log that doesn't make sense in loggly, such as a delimiting line of dashes: ---------
 
 Add a property to your nLog event with the name `syslog-suppress` to filter these out so they don't transmit to loggly.
+
+## NLog Version
+This package references NLog 2.1. Users of NLog 3 can use a binding redirect like this:
+
+
+	<runtime>
+	<assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+	  <dependentAssembly>
+	    <assemblyIdentity name="NLog" publicKeyToken="5120e14c03d0593c" culture="neutral" />
+	    <bindingRedirect oldVersion="0.0.0.0-3.1.0.0" newVersion="3.1.0.0" />
+	  </dependentAssembly>
+	</assemblyBinding>
+	</runtime> 

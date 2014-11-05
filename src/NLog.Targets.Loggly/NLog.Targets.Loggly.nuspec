@@ -5,9 +5,8 @@
     <version>$version$</version>
     <title>$title$</title>
     <authors>neutmute</authors>
-    <projectUrl>https://github.com/joefitzgerald/nlog-targets-loggly</projectUrl>
-	  <licenseUrl>https://raw.githubusercontent.com/joefitzgerald/nlog-targets-loggly/master/LICENSE-2.0.txt</licenseUrl>
-    <iconUrl>https://raw.githubusercontent.com/joefitzgerald/nlog-targets-loggly/master/SolutionItems/NLoggly.png</iconUrl>
+    <projectUrl>https://github.com/neutmute/nlog-targets-loggly</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/neutmute/nlog-targets-loggly/master/SolutionItems/NLoggly.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <language>en-US</language>
