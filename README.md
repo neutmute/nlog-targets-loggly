@@ -3,7 +3,7 @@ An NLog Target For [Loggly](http://www.loggly.com).
 
 Install via [nuget](https://www.nuget.org/packages/NLog.Targets.Loggly/) with
 
-	Install-Package nlog-targets-loggly
+	Install-Package nlog.targets.loggly
 
 See the Demo project in the solution for a working sample. 
 Be sure to create your own config file which is not included in the repo. Try something like this:
