@@ -1,3 +1,0 @@
-[submodule "lib/loggly-csharp"]
-	path = lib/loggly-csharp
-	url = https://github.com/neutmute/loggly-csharp.git
