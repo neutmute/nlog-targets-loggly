@@ -36,9 +36,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Loggly, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\loggly-csharp.4.5.1.6\lib\net45\Loggly.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Loggly.Config, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\loggly-csharp-config.4.5.1.6\lib\net45\Loggly.Config.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=2.1.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -58,16 +66,6 @@
   <ItemGroup>
     <None Include="NLog.Targets.Loggly.nuspec" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\lib\loggly-csharp\source\Loggly.Config\Loggly.Config.csproj">
-      <Project>{58a100ce-cc7e-43bf-a054-d28648f092ac}</Project>
-      <Name>Loggly.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\lib\loggly-csharp\source\Loggly\Loggly.csproj">
-      <Project>{f66349ba-29a6-4336-ba81-993170fc9963}</Project>
-      <Name>Loggly</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
