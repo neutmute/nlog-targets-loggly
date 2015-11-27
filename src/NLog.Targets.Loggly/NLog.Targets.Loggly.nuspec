@@ -12,4 +12,8 @@
     <language>en-US</language>
     <tags>NLog Loggly</tags>
   </metadata>
+  
+	<files>
+		<file src="bin\release\NLog.Targets.Loggly.pdb" target="lib\net45\" />    
+	</files>
 </package>
