@@ -5,7 +5,7 @@ param(
 
 . ".\build.common.ps1"
 
-$solutionName = "nlog-targets-loggly"
+$solutionName = "NLog.Targets.Loggly"
 $sourceUrl = "https://github.com/neutmute/nlog-targets-loggly"
 
 function init {
