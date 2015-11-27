@@ -1,8 +1,7 @@
 # ![](https://raw.githubusercontent.com/joefitzgerald/nlog-targets-loggly/master/SolutionItems/NLoggly.png) nlog-targets-loggly #
 An NLog Target For [Loggly](http://www.loggly.com). 
 
-[![loggly-csharp MyGet Build Status](https://www.myget.org/BuildSource/Badge/nlog-targets-loggly
-?identifier=096040c5-29c7-4254-9b71-611f780d43ff)](https://www.myget.org/) ![Version](https://img.shields.io/nuget/v/NLog.Targets.Loggly.svg)
+[![nlog-targets-loggly MyGet Build Status](https://www.myget.org/BuildSource/Badge/nlog-targets-loggly?identifier=01f46438-a7ab-49c7-ba53-5195726e0ec0)](https://www.myget.org/) ![Version](https://img.shields.io/nuget/v/NLog.Targets.Loggly.svg)
 
 Install via [nuget](https://www.nuget.org/packages/NLog.Targets.Loggly/) with
 
