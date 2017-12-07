@@ -76,7 +76,11 @@ namespace NLog.Targets
 
         protected override void Write(AsyncLogEventInfo[] logEvents)
         {
-            if (logEvents.Length == 1)
+            if (BatchPostingLimit <= 1)
+            {
+                base.Write(logEvents);
+            }
+            else if (logEvents.Length == 1)
             {
                 Write(logEvents[0].LogEvent);
                 logEvents[0].Continuation(null);
@@ -114,7 +118,7 @@ namespace NLog.Targets
                 catch (Exception ex)
                 {
                     InternalLogger.Error("Loggly - {0}", ex.ToString());
-                    for (index = 0; index < logEvents.Length; ++index)
+                    for (; index < logEvents.Length; ++index)
                     {
                         logEvents[index].Continuation(ex);
                     }
