@@ -14,10 +14,21 @@ function init {
     $global:rootFolder = Join-Path $rootFolder .
     $global:packagesFolder = Join-Path $rootFolder packages
     $global:outputFolder = Join-Path $rootFolder _output
-    $global:msbuild = "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe"
+    $global:msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe"
 
+    # Test for AppVeyor config
+    if(!(Test-Path Env:\PackageVersion )){
+        $env:PackageVersion = $env:APPVEYOR_BUILD_VERSION
+    }
+    
+    # Default when no env vars
+    if(!(Test-Path Env:\PackageVersion )){
+        $env:PackageVersion = "1.0.0.0"
+    }
+    
     _WriteOut -ForegroundColor $ColorScheme.Banner "-= $solutionName Build =-"
     _WriteConfig "rootFolder" $rootFolder
+    _WriteConfig "version" $env:PackageVersion
 }
 
 function restorePackages{
@@ -27,6 +38,8 @@ function restorePackages{
     _DownloadNuget $packagesFolder
     nuget restore
     nuget install gitlink -SolutionDir "$rootFolder" -ExcludeVersion
+
+	& $msbuild /t:Restore "$rootFolder\src\$solutionName" /verbosity:minimal
 }
 
 function nugetPack{
@@ -37,18 +50,15 @@ function nugetPack{
     if(!(Test-Path Env:\nuget )){
         $env:nuget = nuget
     }
-    if(!(Test-Path Env:\PackageVersion )){
-        $env:PackageVersion = "1.0.0.0"
-    }
 
-    nuget pack $rootFolder\src\NLog.Targets.Loggly\NLog.Targets.Loggly.csproj -o $outputFolder -IncludeReferencedProjects -p Configuration=$configuration -Version $env:PackageVersion
+	& $msbuild /t:Pack "$rootFolder\src\$solutionName" /p:VersionPrefix=$env:PackageVersion /p:Configuration=$configuration /p:IncludeSymbols=true /verbosity:minimal /p:PackageOutputPath=$outputFolder
 }
 
 function nugetPublish{
 
     if(Test-Path Env:\nugetapikey ){
-        _WriteOut -ForegroundColor $ColorScheme.Banner "Nuget publish"
-        &$env:nuget push .\_output\* $env:nugetapikey
+        _WriteOut -ForegroundColor $ColorScheme.Banner "Nuget publish..."
+        &nuget push $outputFolder\* -ApiKey "$env:nugetapikey" -source https://www.nuget.org
     }
     else{
         _WriteOut -ForegroundColor Yellow "nugetapikey environment variable not detected. Skipping nuget publish"
@@ -58,24 +68,25 @@ function nugetPublish{
 function buildSolution{
 
     _WriteOut -ForegroundColor $ColorScheme.Banner "Build Solution"
-    & $msbuild "$rootFolder\$solutionName.sln" /p:Configuration=$configuration
+    & $msbuild "$rootFolder\$solutionName.sln" /p:Configuration=$configuration /verbosity:minimal
 
-    &"$rootFolder\packages\gitlink\lib\net45\GitLink.exe" $rootFolder -u $sourceUrl
+    &"$rootFolder\packages\GitLink\build\GitLink.exe" $rootFolder -u $sourceUrl
 }
 
-function checkExitCode{
-    if ($lastExitCode -ne 0)
-    {
-        Write-Host "##myget[buildProblem description='lastExitCode was not zero']"
-        exit $lastExitCode
-    }
-}
 
 function executeTests{
 
     Write-Host "Execute Tests"
-    $nunitConsole = "$rootFolder\packages\NUnit.Runners.2.6.3\tools\nunit-console.exe"
-    & $nunitConsole .\Source\Loggly.Tests\bin\$configuration\Loggly.Tests.dll
+
+    $testResultformat = ""
+    $nunitConsole = "$rootFolder\packages\NUnit.ConsoleRunner.3.4.1\tools\nunit3-console.exe"
+
+    if(Test-Path Env:\APPVEYOR){
+        $testResultformat = ";format=AppVeyor"
+        $nunitConsole = "nunit3-console"
+    }
+
+    & $nunitConsole .\Source\Loggly.Tests\bin\$configuration\Loggly.Tests.dll --result=.\Source\Loggly.Tests\bin\$configuration\nunit-results.xml$testResultformat
 
     checkExitCode
 }
