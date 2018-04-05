@@ -1,5 +1,4 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Loggly.cs">
 // Copyright 2013 Joe Fitzgerald
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +23,7 @@ using Loggly;
 using Loggly.Config;
 using Loggly.Transports.Syslog;
 using NLog.Common;
+using NLog.Config;
 
 namespace NLog.Targets
 {
@@ -33,15 +33,21 @@ namespace NLog.Targets
     [Target("Loggly")]
     public class LogglyTarget : TargetWithLayout
     {
-        internal ILogglyClient _client;
+        private ILogglyClient _client;
+        internal Func<ILogglyClient> ClientFactory { get; set; }
         private int _pendingTaskCount;
         private readonly Action<Task<LogResponse>> _receivedLogResponse;
 
         public int BatchPostingLimit { get; set; }
         public int TaskPendingLimit { get; set; }
 
+        [ArrayParameter(typeof(LogglyTagProperty), "tag")]
+        public IList<LogglyTagProperty> Tags { get; }
+
         public LogglyTarget()
         {
+            ClientFactory = () => new LogglyClient();
+            Tags = new List<LogglyTagProperty>();
             BatchPostingLimit = 10;
             TaskPendingLimit = 5;
             _receivedLogResponse = ReceivedLogResponse;
@@ -51,7 +57,7 @@ namespace NLog.Targets
         {
             base.InitializeTarget();
             _pendingTaskCount = 0;
-            _client = new LogglyClient();
+            _client = ClientFactory.Invoke();
         }
 
         protected override void CloseTarget()
@@ -177,6 +183,15 @@ namespace NLog.Targets
                 // syslog will capture these via the header
                 logglyEvent.Data.Add("sequenceId", (object)sequenceId);
                 logglyEvent.Data.Add("level", (object)logEvent.Level.Name);
+            }
+
+            for (int i = 0; i < Tags.Count; ++i)
+            {
+                string tagName = Tags[i].Name?.Render(logEvent);
+                if (!string.IsNullOrEmpty(tagName))
+                {
+                    logglyEvent.Options.Tags.Add(tagName);
+                }
             }
 
             logglyEvent.Data.Add("message", (object)logMessage);
