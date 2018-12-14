@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net45;netstandard1.5;netstandard2.0</TargetFrameworks>
@@ -10,6 +10,8 @@
     <PackageTags>NLog;Loggly</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/neutmute/nlog-targets-loggly/master/SolutionItems/NLoggly.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/neutmute/nlog-targets-loggly</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/neutmute/nlog-targets-loggly.git</RepositoryUrl>
 
   </PropertyGroup>
 
