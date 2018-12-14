@@ -1,5 +1,4 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Loggly.cs">
 // Copyright 2013 Joe Fitzgerald
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +23,7 @@ using Loggly;
 using Loggly.Config;
 using Loggly.Transports.Syslog;
 using NLog.Common;
+using NLog.Config;
 
 namespace NLog.Targets
 {
@@ -33,15 +33,28 @@ namespace NLog.Targets
     [Target("Loggly")]
     public class LogglyTarget : TargetWithLayout
     {
-        internal ILogglyClient _client;
+        private ILogglyClient _client;
+        internal Func<ILogglyClient> ClientFactory { get; set; }
         private int _pendingTaskCount;
         private readonly Action<Task<LogResponse>> _receivedLogResponse;
 
         public int BatchPostingLimit { get; set; }
         public int TaskPendingLimit { get; set; }
 
+        [ArrayParameter(typeof(LogglyTagProperty), "tag")]
+        public IList<LogglyTagProperty> Tags { get; }
+
+        /// <summary>
+        /// Gets the array of custom attributes to be passed into the logevent context
+        /// </summary>
+        /// <docgen category='Layout Options' order='10' />
+        [ArrayParameter(typeof(LogglyContextProperty), "contextproperty")]
+        public virtual IList<LogglyContextProperty> ContextProperties { get; } = new List<LogglyContextProperty>();
+
         public LogglyTarget()
         {
+            ClientFactory = () => new LogglyClient();
+            Tags = new List<LogglyTagProperty>();
             BatchPostingLimit = 10;
             TaskPendingLimit = 5;
             _receivedLogResponse = ReceivedLogResponse;
@@ -51,7 +64,7 @@ namespace NLog.Targets
         {
             base.InitializeTarget();
             _pendingTaskCount = 0;
-            _client = new LogglyClient();
+            _client = ClientFactory.Invoke();
         }
 
         protected override void CloseTarget()
@@ -142,6 +155,22 @@ namespace NLog.Targets
             }
         }
 
+        protected override void FlushAsync(AsyncContinuation asyncContinuation)
+        {
+            for (int i = 0; i < 3000; ++i)
+            {
+                if (_pendingTaskCount == 0)
+                {
+                    asyncContinuation(null);
+                    return;
+                }
+
+                Thread.Sleep(10);
+            }
+
+            asyncContinuation(new TimeoutException($"LogglyClient with {_pendingTaskCount} pending tasks"));
+        }
+
         public LogglyEvent ConvertToLogglyEvent(LogEventInfo logEvent)
         {
             // The unwrapped event has a zero sequenceId, grab it before unwrapping;
@@ -179,12 +208,39 @@ namespace NLog.Targets
                 logglyEvent.Data.Add("level", (object)logEvent.Level.Name);
             }
 
+            for (int i = 0; i < Tags.Count; ++i)
+            {
+                string tagName = Tags[i].Name?.Render(logEvent);
+                if (!string.IsNullOrEmpty(tagName))
+                {
+                    logglyEvent.Options.Tags.Add(tagName);
+                }
+            }
+
             logglyEvent.Data.Add("message", (object)logMessage);
+
+            for (int i = 0; i < ContextProperties.Count; ++i)
+            {
+                var contextKey = ContextProperties[i].Name;
+                if (string.IsNullOrEmpty(contextKey))
+                    continue;
+
+                var contextValue = ContextProperties[i].Layout.Render(logEvent);
+                if (string.IsNullOrEmpty(contextValue) && !ContextProperties[i].IncludeEmptyValue)
+                    continue;
+
+                logglyEvent.Data.AddIfAbsent(contextKey, contextValue);
+            }
+
             if (logEvent.Properties.Count > 0)
             {
                 foreach (var prop in logEvent.Properties)
                 {
-                    logglyEvent.Data.AddIfAbsent(prop.Key.ToString(), prop.Value);
+                    var propertyKey = prop.Key.ToString();
+                    if (string.IsNullOrEmpty(propertyKey))
+                        continue;
+
+                    logglyEvent.Data.AddIfAbsent(propertyKey, prop.Value);
                 }
             }
 
@@ -210,7 +266,7 @@ namespace NLog.Targets
             }
             return outputEventInfo;
         }
-        
+
         private Level ToSyslogLevel(LogLevel nLogLevel)
         {
             switch (nLogLevel.Name)

@@ -33,6 +33,23 @@ See below for sample NLog config (loggly config not shown).
 		</rules>
 	</nlog>
 
+### Tags
+
+Loggly Tags can be added like this:
+
+	<target name="Loggly" xsi:type="Loggly" layout="${message}">
+	  <tag name="{logger}" />
+	</target>
+
+### MetaData
+
+Loggly includes NLog LogEvent Properties automatically, but one can also add extra context like this:
+
+	<target name="Loggly" xsi:type="Loggly" layout="${message}">
+	  <contextproperty name="HostName" layout="${machinename}" />
+	  <contextproperty name="ThreadId" layout="${threadid}" />
+	</target>
+
 ### Suppression
 Sometimes you might emit something to a flat file log that doesn't make sense in loggly, such as a delimiting line of dashes: ---------
 
