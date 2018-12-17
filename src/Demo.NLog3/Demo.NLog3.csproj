@@ -35,23 +35,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Loggly, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\loggly-csharp.4.5.1.6\lib\net45\Loggly.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Loggly, Version=4.6.1.45, Culture=neutral, PublicKeyToken=aea0e3c965ace843, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\loggly-csharp.4.6.1.45\lib\net45\Loggly.dll</HintPath>
     </Reference>
-    <Reference Include="Loggly.Config, Version=4.5.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\loggly-csharp-config.4.5.1.6\lib\net45\Loggly.Config.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Loggly.Config, Version=4.6.1.45, Culture=neutral, PublicKeyToken=aea0e3c965ace843, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\loggly-csharp-config.4.6.1.45\lib\net45\Loggly.Config.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLog">
-      <HintPath>..\..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
+    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\NLog.4.5.0\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />

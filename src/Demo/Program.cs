@@ -51,7 +51,7 @@ namespace Demo
         }
         private static void StandardLogException()
         {
-            Log.Error("Did someone unplug the cable?", new Exception("Cable unplugged"));
+            Log.Error(new Exception("Cable unplugged"), "Did someone unplug the cable?");
         }
         private static void LogWithObjectMetadata()
         {
