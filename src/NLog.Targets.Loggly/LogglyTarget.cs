@@ -31,7 +31,7 @@ namespace NLog.Targets
     /// A Loggly target for NLog
     /// </summary>
     [Target("Loggly")]
-    public class LogglyTarget : TargetWithLayout
+    public class LogglyTarget : TargetWithContext
     {
         private ILogglyClient _client;
         internal Func<ILogglyClient> ClientFactory { get; set; }
@@ -42,19 +42,20 @@ namespace NLog.Targets
         public int TaskPendingLimit { get; set; }
 
         [ArrayParameter(typeof(LogglyTagProperty), "tag")]
-        public IList<LogglyTagProperty> Tags { get; }
+        public IList<LogglyTagProperty> Tags { get; } = new List<LogglyTagProperty>();
 
         /// <summary>
         /// Gets the array of custom attributes to be passed into the logevent context
         /// </summary>
         /// <docgen category='Layout Options' order='10' />
-        [ArrayParameter(typeof(LogglyContextProperty), "contextproperty")]
-        public virtual IList<LogglyContextProperty> ContextProperties { get; } = new List<LogglyContextProperty>();
+        [ArrayParameter(typeof(TargetPropertyWithContext), "contextproperty")]
+        public override IList<TargetPropertyWithContext> ContextProperties { get; } = new List<TargetPropertyWithContext>();
 
         public LogglyTarget()
         {
             ClientFactory = () => new LogglyClient();
-            Tags = new List<LogglyTagProperty>();
+            OptimizeBufferReuse = true;
+            IncludeEventProperties = true;
             BatchPostingLimit = 10;
             TaskPendingLimit = 5;
             _receivedLogResponse = ReceivedLogResponse;
@@ -87,25 +88,20 @@ namespace NLog.Targets
             }
         }
 
-        protected override void Write(AsyncLogEventInfo[] logEvents)
+        protected override void Write(IList<AsyncLogEventInfo> logEvents)
         {
-            if (BatchPostingLimit <= 1)
+            if (BatchPostingLimit <= 1 || logEvents.Count <= 1)
             {
                 base.Write(logEvents);
             }
-            else if (logEvents.Length == 1)
-            {
-                Write(logEvents[0].LogEvent);
-                logEvents[0].Continuation(null);
-            }
-            else if (logEvents.Length > 0)
+            else
             {
                 int index = 0;
                 try
                 {
-                    for (index = 0; index < logEvents.Length; index += BatchPostingLimit)
+                    for (index = 0; index < logEvents.Count; index += BatchPostingLimit)
                     {
-                        int logCount = Math.Min(logEvents.Length - index, BatchPostingLimit);
+                        int logCount = Math.Min(logEvents.Count - index, BatchPostingLimit);
                         List<LogglyEvent> logglyEvents = new List<LogglyEvent>(logCount);
                         for (int i = 0; i < logCount; ++i)
                         {
@@ -131,7 +127,7 @@ namespace NLog.Targets
                 catch (Exception ex)
                 {
                     InternalLogger.Error("Loggly - {0}", ex.ToString());
-                    for (; index < logEvents.Length; ++index)
+                    for (; index < logEvents.Count; ++index)
                     {
                         logEvents[index].Continuation(ex);
                     }
@@ -219,28 +215,30 @@ namespace NLog.Targets
 
             logglyEvent.Data.Add("message", (object)logMessage);
 
-            for (int i = 0; i < ContextProperties.Count; ++i)
+            if (ShouldIncludeProperties(logEvent))
             {
-                var contextKey = ContextProperties[i].Name;
-                if (string.IsNullOrEmpty(contextKey))
-                    continue;
-
-                var contextValue = ContextProperties[i].Layout.Render(logEvent);
-                if (string.IsNullOrEmpty(contextValue) && !ContextProperties[i].IncludeEmptyValue)
-                    continue;
-
-                logglyEvent.Data.AddIfAbsent(contextKey, contextValue);
-            }
-
-            if (logEvent.Properties.Count > 0)
-            {
-                foreach (var prop in logEvent.Properties)
+                var properties = GetAllProperties(logEvent);
+                foreach (var prop in properties)
                 {
-                    var propertyKey = prop.Key.ToString();
-                    if (string.IsNullOrEmpty(propertyKey))
+                    if (string.IsNullOrEmpty(prop.Key))
                         continue;
 
-                    logglyEvent.Data.AddIfAbsent(propertyKey, prop.Value);
+                    logglyEvent.Data.AddIfAbsent(prop.Key, prop.Value);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < ContextProperties.Count; ++i)
+                {
+                    var contextKey = ContextProperties[i].Name;
+                    if (string.IsNullOrEmpty(contextKey))
+                        continue;
+
+                    var contextValue = ContextProperties[i].Layout.Render(logEvent);
+                    if (string.IsNullOrEmpty(contextValue) && !ContextProperties[i].IncludeEmptyValue)
+                        continue;
+
+                    logglyEvent.Data.AddIfAbsent(contextKey, contextValue);
                 }
             }
 
