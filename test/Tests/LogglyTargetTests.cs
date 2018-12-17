@@ -111,6 +111,37 @@ namespace NLog.Targets.Loggly.Tests
             Assert.AreEqual(MethodInfo.GetCurrentMethod().Name, logglyClientMock.LogglyEvents[0].Data["hello"]);
         }
 
+        [Test]
+        public void LogglyTargetMdlcTest()
+        {
+            NLog.LogFactory logFactory = new NLog.LogFactory();
+            NLog.Config.LoggingConfiguration logConfig = CreateConfigurationFromString(
+                @"<nlog throwExceptions='true'>
+                    <extensions>
+	                    <add assembly='NLog.Targets.Loggly' />
+                    </extensions>
+                    <targets>
+                        <target name='Loggly' type='Loggly' layout='${message}' includeMdlc='true'>
+                        </target>
+                    </targets>
+	                <rules>
+	                    <logger name='*' minlevel='Info' writeTo='Loggly' />
+                    </rules>
+                  </nlog>", logFactory);
+            var logglyTarget = logConfig.FindTargetByName("Loggly") as NLog.Targets.LogglyTarget;
+            var logglyClientMock = new LogglyClientMock();
+            logglyTarget.ClientFactory = () => logglyClientMock;
+            logFactory.Configuration = logConfig;
+            NLog.Logger logger = logFactory.GetLogger(MethodInfo.GetCurrentMethod().Name);
+            using (NLog.MappedDiagnosticsLogicalContext.SetScoped("hello", logger.Name))
+            {
+                logger.Info("Hello World");
+                Assert.AreEqual(1, logglyClientMock.LogglyEvents.Count);
+                Assert.Contains("hello", logglyClientMock.LogglyEvents[0].Data.KeyList);
+                Assert.AreEqual(MethodInfo.GetCurrentMethod().Name, logglyClientMock.LogglyEvents[0].Data["hello"]);
+            }
+        }
+
         public static XmlLoggingConfiguration CreateConfigurationFromString(string configXml, NLog.LogFactory logFactory)
         {
             XmlDocument doc = new XmlDocument();

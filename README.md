@@ -50,6 +50,12 @@ Loggly includes NLog LogEvent Properties automatically, but one can also add ext
 	  <contextproperty name="ThreadId" layout="${threadid}" />
 	</target>
 
+### MappedDiagnosticsLogicalContext (MDLC)
+
+Loggly can also include async context from NLog MDLC (Contains state from NetCore ILogger.BeginScope)
+
+	<target name="Loggly" xsi:type="Loggly" layout="${message}" includeMdlc="true" />
+
 ### Suppression
 Sometimes you might emit something to a flat file log that doesn't make sense in loggly, such as a delimiting line of dashes: ---------
 
