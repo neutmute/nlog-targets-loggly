@@ -14,7 +14,6 @@ function init {
     $global:rootFolder = Join-Path $rootFolder .
     $global:packagesFolder = Join-Path $rootFolder packages
     $global:outputFolder = Join-Path $rootFolder _output
-    $global:msbuild = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\MSBuild\15.0\Bin\MSBuild.exe"
 
     # Test for AppVeyor config
     if(!(Test-Path Env:\PackageVersion )){
@@ -32,26 +31,29 @@ function init {
 }
 
 function restorePackages{
-    _WriteOut -ForegroundColor $ColorScheme.Banner "nuget, gitlink restore"
+    _WriteOut -ForegroundColor $ColorScheme.Banner "nuget restore"
     
     New-Item -Force -ItemType directory -Path $packagesFolder
     _DownloadNuget $packagesFolder
     nuget restore
-    nuget install gitlink -SolutionDir "$rootFolder" -ExcludeVersion
+    #nuget install gitlink -SolutionDir "$rootFolder" -ExcludeVersion
 
-	& $msbuild /t:Restore "$rootFolder\src\$solutionName" /verbosity:minimal
+	dotnet restore "$rootFolder\src\$solutionName"
+
+	checkExitCode
 }
 
 function nugetPack{
     _WriteOut -ForegroundColor $ColorScheme.Banner "Nuget pack"
     
-    New-Item -Force -ItemType directory -Path $outputFolder
 
     if(!(Test-Path Env:\nuget )){
         $env:nuget = nuget
     }
 
-	& $msbuild /t:Pack "$rootFolder\src\$solutionName" /p:VersionPrefix=$env:PackageVersion /p:Configuration=$configuration /p:IncludeSymbols=true /verbosity:minimal /p:PackageOutputPath=$outputFolder
+	dotnet pack "$rootFolder\src\$solutionName" --configuration $configuration --include-symbols --no-build --no-restore --output $outputFolder
+
+	checkExitCode
 }
 
 function nugetPublish{
@@ -66,27 +68,21 @@ function nugetPublish{
 }
 
 function buildSolution{
-
     _WriteOut -ForegroundColor $ColorScheme.Banner "Build Solution"
-    & $msbuild "$rootFolder\$solutionName.sln" /p:Configuration=$configuration /verbosity:minimal
+	    
+	New-Item -Force -ItemType directory -Path $outputFolder
 
-    &"$rootFolder\packages\GitLink\build\GitLink.exe" $rootFolder -u $sourceUrl
+    dotnet build "$rootFolder\$solutionName.sln" --configuration $configuration -p:PackageVersion=$env:PackageVersion
+
+	checkExitCode
 }
 
 
 function executeTests{
 
-    Write-Host "Execute Tests"
+	_WriteOut -ForegroundColor $ColorScheme.Banner "Execute Tests"
 
-    $testResultformat = ""
-    $nunitConsole = "$rootFolder\packages\NUnit.ConsoleRunner.3.4.1\tools\nunit3-console.exe"
-
-    if(Test-Path Env:\APPVEYOR){
-        $testResultformat = ";format=AppVeyor"
-        $nunitConsole = "nunit3-console"
-    }
-
-    & $nunitConsole .\Source\Loggly.Tests\bin\$configuration\Loggly.Tests.dll --result=.\Source\Loggly.Tests\bin\$configuration\nunit-results.xml$testResultformat
+	dotnet test $rootFolder\test\NLog.Targets.Loggly.Tests
 
     checkExitCode
 }
@@ -97,7 +93,7 @@ restorePackages
 
 buildSolution
 
-#executeTests
+executeTests
 
 nugetPack
 
