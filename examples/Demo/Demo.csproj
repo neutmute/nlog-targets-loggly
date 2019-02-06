@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>exe</OutputType>
+    <TargetFrameworks>net451</TargetFrameworks>
+    <IsPackable>false</IsPackable>
+    <DebugType>Full</DebugType>
+    <ProjectConfigFileName>App.config</ProjectConfigFileName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="loggly-csharp" Version="4.6.1.45" />
+    <PackageReference Include="loggly-csharp-config" Version="4.6.1.64" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\NLog.Targets.Loggly\NLog.Targets.Loggly.csproj" />
+  </ItemGroup>
+
+</Project>
