@@ -126,7 +126,7 @@ namespace NLog.Targets
                 }
                 catch (Exception ex)
                 {
-                    InternalLogger.Error("Loggly - {0}", ex.ToString());
+                    InternalLogger.Error(ex, "Loggly - {0}", ex.Message);
                     for (; index < logEvents.Count; ++index)
                     {
                         logEvents[index].Continuation(ex);
@@ -169,12 +169,7 @@ namespace NLog.Targets
 
         public LogglyEvent ConvertToLogglyEvent(LogEventInfo logEvent)
         {
-            // The unwrapped event has a zero sequenceId, grab it before unwrapping;
-            var sequenceId = logEvent.SequenceID;
-
-            logEvent = GetCorrectEvent(logEvent);
-
-            if (logEvent.Properties.ContainsKey("syslog-suppress"))
+            if (logEvent.HasProperties && logEvent.Properties.ContainsKey("syslog-suppress"))
             {
                 /*
                  * logging delimiting messages like "--------------" makes sense for pretty printing to file log targets
@@ -183,13 +178,13 @@ namespace NLog.Targets
                 return null;
             }
 
-            var logMessage = Layout.Render(logEvent);
+            var logMessage = RenderLogEvent(Layout, logEvent) ?? string.Empty;
 
             var logglyEvent = new LogglyEvent();
             var isHttpTransport = LogglyConfig.Instance.Transport.LogTransport == LogTransport.Https;
 
             logglyEvent.Timestamp = logEvent.TimeStamp;
-            logglyEvent.Syslog.MessageId = sequenceId;
+            logglyEvent.Syslog.MessageId = logEvent.SequenceID;
             logglyEvent.Syslog.Level = ToSyslogLevel(logEvent.Level);
 
             if (logEvent.Exception != null)
@@ -200,13 +195,13 @@ namespace NLog.Targets
             if (isHttpTransport)
             {
                 // syslog will capture these via the header
-                logglyEvent.Data.Add("sequenceId", (object)sequenceId);
+                logglyEvent.Data.Add("sequenceId", (object)logEvent.SequenceID);
                 logglyEvent.Data.Add("level", (object)logEvent.Level.Name);
             }
 
             for (int i = 0; i < Tags.Count; ++i)
             {
-                string tagName = Tags[i].Name?.Render(logEvent);
+                string tagName = RenderLogEvent(Tags[i].Name, logEvent);
                 if (!string.IsNullOrEmpty(tagName))
                 {
                     logglyEvent.Options.Tags.Add(tagName);
@@ -234,7 +229,7 @@ namespace NLog.Targets
                     if (string.IsNullOrEmpty(contextKey))
                         continue;
 
-                    var contextValue = ContextProperties[i].Layout.Render(logEvent);
+                    var contextValue = RenderLogEvent(ContextProperties[i].Layout, logEvent);
                     if (string.IsNullOrEmpty(contextValue) && !ContextProperties[i].IncludeEmptyValue)
                         continue;
 
@@ -245,25 +240,6 @@ namespace NLog.Targets
             return logglyEvent;
         }
 
-        /// <summary>
-        /// Async nLog wraps the original event in a new one (not sure why?)
-        /// Unwrap the original and use that so we can get all our parameters
-        /// http://stackoverflow.com/questions/23272439/nlog-event-contextitem-xxxx-not-writing-in-logging-database
-        /// </summary>
-        public static LogEventInfo GetCorrectEvent(LogEventInfo inboundEventInfo)
-        {
-            LogEventInfo outputEventInfo = inboundEventInfo;
-            if (inboundEventInfo.Parameters != null && inboundEventInfo.Parameters.Length == 1)
-            {
-                var nestedEvent = inboundEventInfo.Parameters[0] as LogEventInfo;
-                if (nestedEvent != null)
-                {
-                    outputEventInfo = nestedEvent;
-                    outputEventInfo.Level = inboundEventInfo.Level;
-                }
-            }
-            return outputEventInfo;
-        }
 
         private Level ToSyslogLevel(LogLevel nLogLevel)
         {
@@ -275,8 +251,10 @@ namespace NLog.Targets
                 case "Info": return Level.Information;
                 case "Trace": return Level.Debug; // syslog doesn't have anything below debug. Mashed debug and trace together
                 case "Warn": return Level.Warning;
-                default: LogglyException.Throw("Failed to map level"); return Level.Alert;
             }
+
+            InternalLogger.Error("Loggly - Unknown LogLevel {0}", nLogLevel.Name);
+            return Level.Alert;
         }
     }
 }
