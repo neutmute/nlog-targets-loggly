@@ -89,19 +89,16 @@ namespace NLog.Targets
 
         protected override void InitializeTarget()
         {
-            if (string.IsNullOrWhiteSpace(LogglyConfig.Instance.ApplicationName))
+            var customerToken = CustomerToken?.Render(LogEventInfo.CreateNullEvent());
+            if (!string.IsNullOrWhiteSpace(customerToken))
             {
+                LogglyConfig.Instance.CustomerToken = customerToken;
+
                 var applicationName = ApplicationName?.Render(LogEventInfo.CreateNullEvent());
                 if (!string.IsNullOrWhiteSpace(applicationName))
                 {
                     LogglyConfig.Instance.ApplicationName = applicationName;
                 }
-            }
-
-            var customerToken = CustomerToken?.Render(LogEventInfo.CreateNullEvent());
-            if (!string.IsNullOrWhiteSpace(customerToken))
-            {
-                LogglyConfig.Instance.CustomerToken = customerToken;
             }
 
             var endPointHostName = EndpointHostname?.Render(LogEventInfo.CreateNullEvent());
