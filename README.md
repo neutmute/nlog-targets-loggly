@@ -17,12 +17,11 @@ This NLog target project reads the [loggly-csharp configuration](https://github.
 
 See below for sample NLog config (loggly config not shown).
 
-	<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  throwExceptions="true">
+	<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  throwConfigExceptions="true">
 		<extensions>
 		  <add assembly="NLog.Targets.Loggly" />
 		</extensions>
 		<variable name="DefaultLayout" value="${longdate} | ${level:uppercase=true:padding=5} | ${message} | ${exception:format=type,tostring}" />
-		<variable name="AppName" value="Loggly NLog Target Demo" />
 	
 		<targets async="true">
 		  <target name="ColorConsole" xsi:type="ColoredConsole" layout="${DefaultLayout}" />
@@ -32,6 +31,20 @@ See below for sample NLog config (loggly config not shown).
 		  <logger name="*" minlevel="Info" writeTo="ColorConsole,Loggly" />
 		</rules>
 	</nlog>
+
+### Loggly EndPoint Config
+Loggly Config can be configured through the NLog Target properties:
+
+	<target name="Loggly" xsi:type="Loggly" layout="${message}" applicationName="MyApp" customerToken="your token" endpointHostname="logs-01.loggly.com" endpointPort="443" logTransport="https">
+	</target>
+
+The following settings are supported:
+
+- _CustomerToken_ - Required value, unless configured elsewhere
+- _LogTransport_ - Loggly EndPoint Protocol (Https, SyslogUdp, SyslogTcp, SyslogSecure). Default = Https
+- _EndpointHostname_ - Loggly EndPoint HostName. Default = logs-01.loggly.com
+- _EndpointPort_ - Loggly EndPoint Port Number. Default = Value matching LogTransport
+- _ApplicationName_ - Application Identifier. Default = AppDomain FriendlyName
 
 ### Tags
 
