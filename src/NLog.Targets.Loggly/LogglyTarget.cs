@@ -24,6 +24,7 @@ using Loggly.Config;
 using Loggly.Transports.Syslog;
 using NLog.Common;
 using NLog.Config;
+using NLog.Layouts;
 
 namespace NLog.Targets
 {
@@ -51,6 +52,31 @@ namespace NLog.Targets
         [ArrayParameter(typeof(TargetPropertyWithContext), "contextproperty")]
         public override IList<TargetPropertyWithContext> ContextProperties { get; } = new List<TargetPropertyWithContext>();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public Layout ApplicationName { get; set; } = "${appdomain:cached=true:format=\\{1\\}}";
+
+        /// <summary>
+        /// Loggly Customer Token
+        /// </summary>
+        public Layout CustomerToken { get; set; }
+
+        /// <summary>
+        /// Loggly EndPoint HostName
+        /// </summary>
+        public Layout EndpointHostname { get; set; }
+
+        /// <summary>
+        /// Loggly EndPoint Host PortNumber
+        /// </summary>
+        public Layout EndpointPort { get; set; }
+
+        /// <summary>
+        /// Loggly EndPoint Protocol (Https, SyslogSecure, SyslogUdp, SyslogTcp)
+        /// </summary>
+        public LogTransport LogTransport { get; set; }
+
         public LogglyTarget()
         {
             ClientFactory = () => new LogglyClient();
@@ -63,6 +89,35 @@ namespace NLog.Targets
 
         protected override void InitializeTarget()
         {
+            var customerToken = CustomerToken?.Render(LogEventInfo.CreateNullEvent());
+            if (!string.IsNullOrWhiteSpace(customerToken))
+            {
+                LogglyConfig.Instance.CustomerToken = customerToken;
+
+                var applicationName = ApplicationName?.Render(LogEventInfo.CreateNullEvent());
+                if (!string.IsNullOrWhiteSpace(applicationName))
+                {
+                    LogglyConfig.Instance.ApplicationName = applicationName;
+                }
+            }
+
+            var endPointHostName = EndpointHostname?.Render(LogEventInfo.CreateNullEvent());
+            if (!string.IsNullOrWhiteSpace(endPointHostName))
+            {
+                var endpointPort = EndpointPort?.Render(LogEventInfo.CreateNullEvent());
+                if (!int.TryParse(endpointPort ?? string.Empty, out var endpointPortNumber))
+                {
+                    endpointPortNumber = 0; // Let Loggly guess from LogTransport-enum
+                }
+
+                LogglyConfig.Instance.Transport = new TransportConfiguration()
+                {
+                    EndpointHostname = endPointHostName,
+                    EndpointPort = endpointPortNumber,
+                    LogTransport = LogTransport,
+                }.GetCoercedToValidConfig();
+            }
+
             base.InitializeTarget();
             _pendingTaskCount = 0;
             _client = ClientFactory.Invoke();

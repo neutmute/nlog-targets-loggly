@@ -10,6 +10,13 @@
     <PackageTags>NLog;Loggly</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/neutmute/nlog-targets-loggly/master/SolutionItems/NLoggly.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/neutmute/nlog-targets-loggly</PackageProjectUrl>
+    <PackageReleaseNotes>The following Loggly Config Values can be configured directly on the NLog Target:
+- CustomerToken - Required value, unless configured elsewhere
+- LogTransport - Loggly EndPoint Protocol (Https, SyslogUdp, SyslogTcp, SyslogSecure). Default = Https
+- EndpointHostname - Loggly EndPoint HostName. Default = logs-01.loggly.com
+- EndpointPort - Loggly EndPoint Port Number. Default = Value matching LogTransport
+- ApplicationName - Application Identifier. Default = AppDomain FriendlyName
+    </PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/neutmute/nlog-targets-loggly.git</RepositoryUrl>
 

@@ -58,13 +58,18 @@ function nugetPack{
 
 function nugetPublish{
 
-    if(Test-Path Env:\nugetapikey ){
-        _WriteOut -ForegroundColor $ColorScheme.Banner "Nuget publish..."
-        &nuget push $outputFolder\* -ApiKey "$env:nugetapikey" -source https://www.nuget.org
-    }
-    else{
-        _WriteOut -ForegroundColor Yellow "nugetapikey environment variable not detected. Skipping nuget publish"
-    }
+    if($env:APPVEYOR_PULL_REQUEST_NUMBER){
+		_WriteOut -ForegroundColor Yellow "Pull Request Build Detected. Skipping Publish"
+	}
+	else{
+		if(Test-Path Env:\nugetapikey ){
+	        _WriteOut -ForegroundColor $ColorScheme.Banner "Nuget publish..."
+		    &nuget push $outputFolder\* -ApiKey "$env:nugetapikey" -source https://www.nuget.org
+		}
+		else{
+			_WriteOut -ForegroundColor Yellow "nugetapikey environment variable not detected. Skipping nuget publish"
+		}
+	}
 }
 
 function buildSolution{
