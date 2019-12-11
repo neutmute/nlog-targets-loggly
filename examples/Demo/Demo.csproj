@@ -2,15 +2,15 @@
 
   <PropertyGroup>
     <OutputType>exe</OutputType>
-    <TargetFrameworks>net451</TargetFrameworks>
+    <TargetFrameworks>net45</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <DebugType>Full</DebugType>
     <ProjectConfigFileName>App.config</ProjectConfigFileName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="loggly-csharp" Version="4.6.1.55" />
-    <PackageReference Include="loggly-csharp-config" Version="4.6.1.55" />
+    <PackageReference Include="loggly-csharp" Version="4.6.1.73" />
+    <PackageReference Include="loggly-csharp-config" Version="4.6.1.73" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
   </ItemGroup>
 
