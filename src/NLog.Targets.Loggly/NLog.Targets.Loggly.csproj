@@ -19,6 +19,7 @@
     </PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/neutmute/nlog-targets-loggly.git</RepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
   </PropertyGroup>
 

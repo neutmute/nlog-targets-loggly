@@ -39,9 +39,19 @@ namespace NLog.Targets
         private int _pendingTaskCount;
         private readonly Action<Task<LogResponse>> _receivedLogResponse;
 
+        /// <summary>
+        /// Number of logevents to include in a single batch-task
+        /// </summary>
         public int BatchPostingLimit { get; set; }
+
+        /// <summary>
+        /// Number of pending batch-tasks before blocking
+        /// </summary>
         public int TaskPendingLimit { get; set; }
 
+        /// <summary>
+        /// Gets the array of custom tags to be passed with the logevent
+        /// </summary>
         [ArrayParameter(typeof(LogglyTagProperty), "tag")]
         public IList<LogglyTagProperty> Tags { get; } = new List<LogglyTagProperty>();
 
@@ -77,6 +87,9 @@ namespace NLog.Targets
         /// </summary>
         public LogTransport LogTransport { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="LogglyTarget"/>.
+        /// </summary>
         public LogglyTarget()
         {
             ClientFactory = () => new LogglyClient();
@@ -87,6 +100,7 @@ namespace NLog.Targets
             _receivedLogResponse = ReceivedLogResponse;
         }
 
+        /// <inheritdoc />
         protected override void InitializeTarget()
         {
             var customerToken = CustomerToken?.Render(LogEventInfo.CreateNullEvent());
@@ -123,12 +137,14 @@ namespace NLog.Targets
             _client = ClientFactory.Invoke();
         }
 
+        /// <inheritdoc />
         protected override void CloseTarget()
         {
             _client = null;
             base.CloseTarget();
         }
 
+        /// <inheritdoc />
         protected override void Write(LogEventInfo logEvent)
         {
             var logglyEvent = ConvertToLogglyEvent(logEvent);
@@ -143,6 +159,7 @@ namespace NLog.Targets
             }
         }
 
+        /// <inheritdoc />
         protected override void Write(IList<AsyncLogEventInfo> logEvents)
         {
             if (BatchPostingLimit <= 1 || logEvents.Count <= 1)
@@ -206,6 +223,7 @@ namespace NLog.Targets
             }
         }
 
+        /// <inheritdoc />
         protected override void FlushAsync(AsyncContinuation asyncContinuation)
         {
             for (int i = 0; i < 3000; ++i)
@@ -222,7 +240,7 @@ namespace NLog.Targets
             asyncContinuation(new TimeoutException($"LogglyClient with {_pendingTaskCount} pending tasks"));
         }
 
-        public LogglyEvent ConvertToLogglyEvent(LogEventInfo logEvent)
+        private LogglyEvent ConvertToLogglyEvent(LogEventInfo logEvent)
         {
             if (logEvent.HasProperties && logEvent.Properties.ContainsKey("syslog-suppress"))
             {

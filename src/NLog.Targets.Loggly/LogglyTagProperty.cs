@@ -20,6 +20,9 @@ using NLog.Layouts;
 
 namespace NLog.Targets
 {
+    /// <summary>
+    /// Tag details for <see cref="LogglyTarget"/> 
+    /// </summary>
     [NLogConfigurationItem]
     [ThreadAgnostic]
     public class LogglyTagProperty
@@ -31,8 +34,14 @@ namespace NLog.Targets
         [RequiredParameter]
         public Layout Name { get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="LogglyTagProperty"/>.
+        /// </summary>
         public LogglyTagProperty() : this(null) { }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="LogglyTagProperty"/>.
+        /// </summary>
         public LogglyTagProperty(Layout name)
         {
             Name = name;

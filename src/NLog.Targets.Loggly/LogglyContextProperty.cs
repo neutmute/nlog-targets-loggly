@@ -20,6 +20,9 @@ using NLog.Layouts;
 
 namespace NLog.Targets
 {
+    /// <summary>
+    /// Context property details for <see cref="LogglyTarget"/> 
+    /// </summary>
     [NLogConfigurationItem]
     [ThreadAgnostic]
     public class LogglyContextProperty
