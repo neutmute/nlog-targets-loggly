@@ -88,6 +88,11 @@ namespace NLog.Targets
         public LogTransport LogTransport { get; set; }
 
         /// <summary>
+        /// Include HTTP Header X-Forwarded-For
+        /// </summary>
+        public Layout ForwardedForIp { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of <see cref="LogglyTarget"/>.
         /// </summary>
         public LogglyTarget()
@@ -124,11 +129,16 @@ namespace NLog.Targets
                     endpointPortNumber = 0; // Let Loggly guess from LogTransport-enum
                 }
 
+                var forwardedForIp = ForwardedForIp?.Render(LogEventInfo.CreateNullEvent());
+                if (string.IsNullOrEmpty(forwardedForIp))
+                    forwardedForIp = null;
+
                 LogglyConfig.Instance.Transport = new TransportConfiguration()
                 {
                     EndpointHostname = endPointHostName,
                     EndpointPort = endpointPortNumber,
                     LogTransport = LogTransport,
+                    ForwardedForIp = forwardedForIp,
                 }.GetCoercedToValidConfig();
             }
 

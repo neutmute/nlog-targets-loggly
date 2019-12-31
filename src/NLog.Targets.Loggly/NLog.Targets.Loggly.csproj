@@ -16,6 +16,7 @@
 - EndpointHostname - Loggly EndPoint HostName. Default = logs-01.loggly.com
 - EndpointPort - Loggly EndPoint Port Number. Default = Value matching LogTransport
 - ApplicationName - Application Identifier. Default = AppDomain FriendlyName
+- ForwardedForIp - Include HTTP Header X-Forwarded-For. Default = Not set
     </PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/neutmute/nlog-targets-loggly.git</RepositoryUrl>

@@ -45,6 +45,7 @@ The following settings are supported:
 - _EndpointHostname_ - Loggly EndPoint HostName. Default = logs-01.loggly.com
 - _EndpointPort_ - Loggly EndPoint Port Number. Default = Value matching LogTransport
 - _ApplicationName_ - Application Identifier. Default = AppDomain FriendlyName
+- _ForwardedForIp_ - Include HTTP Header X-Forwarded-For. Default = Not set
 
 ### Tags
 
