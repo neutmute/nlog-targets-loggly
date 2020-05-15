@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="loggly-csharp" Version="4.6.1.88" />
-    <PackageReference Include="loggly-csharp-config" Version="4.6.1.88" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <PackageReference Include="loggly-csharp" Version="4.6.1.89" />
+    <PackageReference Include="loggly-csharp-config" Version="4.6.1.89" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
   <ItemGroup>
