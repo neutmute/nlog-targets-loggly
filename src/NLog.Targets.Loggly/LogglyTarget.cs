@@ -32,21 +32,22 @@ namespace NLog.Targets
     /// A Loggly target for NLog
     /// </summary>
     [Target("Loggly")]
-    public class LogglyTarget : TargetWithContext
+    public class LogglyTarget : AsyncTaskTarget
     {
         private ILogglyClient _client;
         internal Func<ILogglyClient> ClientFactory { get; set; }
-        private int _pendingTaskCount;
         private readonly Action<Task<LogResponse>> _receivedLogResponse;
 
         /// <summary>
         /// Number of logevents to include in a single batch-task
         /// </summary>
-        public int BatchPostingLimit { get; set; }
+        [Obsolete("Use BatchSize instead.")]
+        public int BatchPostingLimit { get => BatchSize; set => BatchSize = value; }
 
         /// <summary>
         /// Number of pending batch-tasks before blocking
         /// </summary>
+        [Obsolete("Out-of-order processing no longer supported.")]
         public int TaskPendingLimit { get; set; }
 
         /// <summary>
@@ -54,13 +55,6 @@ namespace NLog.Targets
         /// </summary>
         [ArrayParameter(typeof(LogglyTagProperty), "tag")]
         public IList<LogglyTagProperty> Tags { get; } = new List<LogglyTagProperty>();
-
-        /// <summary>
-        /// Gets the array of custom attributes to be passed into the logevent context
-        /// </summary>
-        /// <docgen category='Layout Options' order='10' />
-        [ArrayParameter(typeof(TargetPropertyWithContext), "contextproperty")]
-        public override IList<TargetPropertyWithContext> ContextProperties { get; } = new List<TargetPropertyWithContext>();
 
         /// <summary>
         /// 
@@ -100,8 +94,8 @@ namespace NLog.Targets
             ClientFactory = () => new LogglyClient();
             OptimizeBufferReuse = true;
             IncludeEventProperties = true;
-            BatchPostingLimit = 10;
-            TaskPendingLimit = 5;
+            BatchSize = 10;
+            TaskDelayMilliseconds = 200;    // Increase chance of batching
             _receivedLogResponse = ReceivedLogResponse;
         }
 
@@ -143,7 +137,6 @@ namespace NLog.Targets
             }
 
             base.InitializeTarget();
-            _pendingTaskCount = 0;
             _client = ClientFactory.Invoke();
         }
 
@@ -155,71 +148,27 @@ namespace NLog.Targets
         }
 
         /// <inheritdoc />
-        protected override void Write(LogEventInfo logEvent)
+        protected override Task WriteAsyncTask(LogEventInfo logEvent, CancellationToken cancellationToken)
         {
-            var logglyEvent = ConvertToLogglyEvent(logEvent);
-            if (logglyEvent != null)
-            {
-                var task = _client.Log(logglyEvent).ContinueWith(_receivedLogResponse);
-                if (Interlocked.Increment(ref _pendingTaskCount) >= TaskPendingLimit)
-                {
-                    task.Wait();
-                    _pendingTaskCount = 0;
-                }
-            }
+            throw new NotImplementedException();    // Never called because of override of WriteAsyncTask with IList
         }
 
         /// <inheritdoc />
-        protected override void Write(IList<AsyncLogEventInfo> logEvents)
+        protected override Task WriteAsyncTask(IList<LogEventInfo> logEvents, CancellationToken cancellationToken)
         {
-            if (BatchPostingLimit <= 1 || logEvents.Count <= 1)
+            List<LogglyEvent> logglyEvents = new List<LogglyEvent>(logEvents.Count);
+            for (int i = 0; i < logEvents.Count; ++i)
             {
-                base.Write(logEvents);
+                var logglyEvent = ConvertToLogglyEvent(logEvents[i]);
+                if (logglyEvent != null)
+                    logglyEvents.Add(logglyEvent);
             }
-            else
-            {
-                int index = 0;
-                try
-                {
-                    for (index = 0; index < logEvents.Count; index += BatchPostingLimit)
-                    {
-                        int logCount = Math.Min(logEvents.Count - index, BatchPostingLimit);
-                        List<LogglyEvent> logglyEvents = new List<LogglyEvent>(logCount);
-                        for (int i = 0; i < logCount; ++i)
-                        {
-                            var logglyEvent = ConvertToLogglyEvent(logEvents[index + i].LogEvent);
-                            if (logglyEvent != null)
-                                logglyEvents.Add(logglyEvent);
-                        }
-                        if (logglyEvents.Count > 0)
-                        {
-                            var task = _client.Log(logglyEvents).ContinueWith(_receivedLogResponse);
-                            if (Interlocked.Increment(ref _pendingTaskCount) >= TaskPendingLimit)
-                            {
-                                task.Wait();
-                                _pendingTaskCount = 0;
-                            }
-                        }
-                        for (int i = 0; i < logCount; ++i)
-                        {
-                            logEvents[index + i].Continuation(null);
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    InternalLogger.Error(ex, "Loggly - {0}", ex.Message);
-                    for (; index < logEvents.Count; ++index)
-                    {
-                        logEvents[index].Continuation(ex);
-                    }
-                }
-            }
+
+            return _client.Log(logglyEvents).ContinueWith(_receivedLogResponse);
         }
 
         private void ReceivedLogResponse(Task<LogResponse> logResponse)
         {
-            Interlocked.Decrement(ref _pendingTaskCount);
             if (logResponse.IsFaulted && logResponse.Exception != null)
             {
                 InternalLogger.Error("Loggly - {0}", logResponse.Exception.ToString());
@@ -231,23 +180,6 @@ namespace NLog.Targets
                     InternalLogger.Error("Loggly - {0}", logResponse.Result.Message);
                 }
             }
-        }
-
-        /// <inheritdoc />
-        protected override void FlushAsync(AsyncContinuation asyncContinuation)
-        {
-            for (int i = 0; i < 3000; ++i)
-            {
-                if (_pendingTaskCount == 0)
-                {
-                    asyncContinuation(null);
-                    return;
-                }
-
-                Thread.Sleep(10);
-            }
-
-            asyncContinuation(new TimeoutException($"LogglyClient with {_pendingTaskCount} pending tasks"));
         }
 
         private LogglyEvent ConvertToLogglyEvent(LogEventInfo logEvent)
@@ -322,7 +254,6 @@ namespace NLog.Targets
 
             return logglyEvent;
         }
-
 
         private Level ToSyslogLevel(LogLevel nLogLevel)
         {

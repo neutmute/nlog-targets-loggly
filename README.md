@@ -47,6 +47,12 @@ The following settings are supported:
 - _ApplicationName_ - Application Identifier. Default = AppDomain FriendlyName
 - _ForwardedForIp_ - Include HTTP Header X-Forwarded-For. Default = Not set
 
+### Batching Policy
+- _batchSize_ - Number of LogEvents to send in a single batch (Default=10)
+- _taskDelayMilliseconds_ - Artificial delay before sending to optimize for batching (Default=200 ms)
+- _queueLimit_ - Number of pending LogEvents to have in memory queue, that are waiting to be sent (Default=10000)
+- _overflowAction_ - Action to take when reaching limit of in memory queue (Default=Discard)
+
 ### Tags
 
 Loggly Tags can be added like this:

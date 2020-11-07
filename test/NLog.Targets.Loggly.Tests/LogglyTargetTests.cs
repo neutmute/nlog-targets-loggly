@@ -36,7 +36,7 @@ namespace NLog.Targets.Loggly.Tests
 	                    <add assembly='NLog.Targets.Loggly' />
                     </extensions>
                     <targets>
-                        <target name='Loggly' type='Loggly' layout='${message}' />
+                        <target name='Loggly' type='Loggly' layout='${message}' taskDelayMilliseconds='10'/>
                     </targets>
 	                <rules>
 	                    <logger name='*' minlevel='Info' writeTo='Loggly' />
@@ -48,6 +48,7 @@ namespace NLog.Targets.Loggly.Tests
             logFactory.Configuration = logConfig;
             NLog.Logger logger = logFactory.GetLogger(MethodInfo.GetCurrentMethod().Name);
             logger.Info("{{\"aaa}}");
+            logglyClientMock.LogWritten.WaitOne(1000);
             Assert.AreEqual(1, logglyClientMock.LogglyEvents.Count);
         }
 
@@ -61,7 +62,7 @@ namespace NLog.Targets.Loggly.Tests
 	                    <add assembly='NLog.Targets.Loggly' />
                     </extensions>
                     <targets>
-                        <target name='Loggly' type='Loggly' layout='${message}'>
+                        <target name='Loggly' type='Loggly' layout='${message}' taskDelayMilliseconds='10'>
                             <tag name='hello' />
                             <tag name='${logger}' />
                         </target>
@@ -76,6 +77,7 @@ namespace NLog.Targets.Loggly.Tests
             logFactory.Configuration = logConfig;
             NLog.Logger logger = logFactory.GetLogger(MethodInfo.GetCurrentMethod().Name);
             logger.Info("Hello World");
+            logglyClientMock.LogWritten.WaitOne(1000);
             Assert.AreEqual(1, logglyClientMock.LogglyEvents.Count);
             Assert.AreEqual(2, logglyClientMock.LogglyEvents[0].Options.Tags.Count);
             Assert.AreEqual("hello", logglyClientMock.LogglyEvents[0].Options.Tags[0].Value);
@@ -92,7 +94,7 @@ namespace NLog.Targets.Loggly.Tests
 	                    <add assembly='NLog.Targets.Loggly' />
                     </extensions>
                     <targets>
-                        <target name='Loggly' type='Loggly' layout='${message}'>
+                        <target name='Loggly' type='Loggly' layout='${message}' taskDelayMilliseconds='10'>
                             <contextproperty name='hello' layout='${logger}' />
                         </target>
                     </targets>
@@ -106,6 +108,7 @@ namespace NLog.Targets.Loggly.Tests
             logFactory.Configuration = logConfig;
             NLog.Logger logger = logFactory.GetLogger(MethodInfo.GetCurrentMethod().Name);
             logger.Info("Hello World");
+            logglyClientMock.LogWritten.WaitOne(1000);
             Assert.AreEqual(1, logglyClientMock.LogglyEvents.Count);
             Assert.Contains("hello", logglyClientMock.LogglyEvents[0].Data.KeyList);
             Assert.AreEqual(MethodInfo.GetCurrentMethod().Name, logglyClientMock.LogglyEvents[0].Data["hello"]);
@@ -121,7 +124,7 @@ namespace NLog.Targets.Loggly.Tests
 	                    <add assembly='NLog.Targets.Loggly' />
                     </extensions>
                     <targets>
-                        <target name='Loggly' type='Loggly' layout='${message}' includeMdlc='true'>
+                        <target name='Loggly' type='Loggly' layout='${message}' includeMdlc='true' taskDelayMilliseconds='10'>
                         </target>
                     </targets>
 	                <rules>
@@ -136,6 +139,7 @@ namespace NLog.Targets.Loggly.Tests
             using (NLog.MappedDiagnosticsLogicalContext.SetScoped("hello", logger.Name))
             {
                 logger.Info("Hello World");
+                logglyClientMock.LogWritten.WaitOne(1000);
                 Assert.AreEqual(1, logglyClientMock.LogglyEvents.Count);
                 Assert.Contains("hello", logglyClientMock.LogglyEvents[0].Data.KeyList);
                 Assert.AreEqual(MethodInfo.GetCurrentMethod().Name, logglyClientMock.LogglyEvents[0].Data["hello"]);

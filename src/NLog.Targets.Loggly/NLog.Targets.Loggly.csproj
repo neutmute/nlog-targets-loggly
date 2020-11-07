@@ -25,8 +25,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="loggly-csharp" Version="4.6.1.89" />
-    <PackageReference Include="NLog" Version="4.5.11" />
+    <PackageReference Include="loggly-csharp" Version="4.6.1.92" />
+    <PackageReference Include="NLog" Version="4.6.8" />
   </ItemGroup>
 
 </Project>
