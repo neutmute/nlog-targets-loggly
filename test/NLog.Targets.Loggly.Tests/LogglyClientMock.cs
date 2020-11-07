@@ -16,6 +16,7 @@
 // -----------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Loggly;
 
@@ -23,17 +24,21 @@ namespace NLog.Targets.Loggly.Tests
 {
     class LogglyClientMock : ILogglyClient
     {
+        public AutoResetEvent LogWritten { get; } = new AutoResetEvent(false);
+
         public List<LogglyEvent> LogglyEvents { get; set; } = new List<LogglyEvent>(1000);
 
         public Task<LogResponse> Log(LogglyEvent logglyEvent)
         {
             LogglyEvents.Add(logglyEvent);
+            LogWritten.Set();
             return Task.FromResult(new LogResponse() { Code = ResponseCode.Success });
         }
 
         public Task<LogResponse> Log(IEnumerable<LogglyEvent> logglyEvents)
         {
             LogglyEvents.AddRange(logglyEvents);
+            LogWritten.Set();
             return Task.FromResult(new LogResponse() { Code = ResponseCode.Success });
         }
     }
