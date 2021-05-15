@@ -1,4 +1,4 @@
-# ![](https://raw.githubusercontent.com/joefitzgerald/nlog-targets-loggly/master/SolutionItems/NLoggly.png) nlog-targets-loggly #
+# ![](https://raw.githubusercontent.com/neutmute/nlog-targets-loggly/master/SolutionItems/NLoggly.png) nlog-targets-loggly #
 An NLog Target For [Loggly](http://www.loggly.com). 
 
 [![nlog-targets-loggly MyGet Build Status](https://www.myget.org/BuildSource/Badge/nlog-targets-loggly?identifier=01f46438-a7ab-49c7-ba53-5195726e0ec0)](https://www.myget.org/) [![NuGet](https://img.shields.io/nuget/v/NLog.Targets.Loggly.svg)](https://www.nuget.org/packages/NLog.Targets.Loggly) 
@@ -17,26 +17,28 @@ This NLog target project reads the [loggly-csharp configuration](https://github.
 
 See below for sample NLog config (loggly config not shown).
 
-	<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  throwConfigExceptions="true">
-		<extensions>
-		  <add assembly="NLog.Targets.Loggly" />
-		</extensions>
-		<variable name="DefaultLayout" value="${longdate} | ${level:uppercase=true:padding=5} | ${message} | ${exception:format=type,tostring}" />
-	
-		<targets async="true">
-		  <target name="ColorConsole" xsi:type="ColoredConsole" layout="${DefaultLayout}" />
-		  <target name="Loggly" xsi:type="Loggly" layout="${message}" />
-		</targets>
-		<rules>
-		  <logger name="*" minlevel="Info" writeTo="ColorConsole,Loggly" />
-		</rules>
-	</nlog>
+```xml
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  throwConfigExceptions="true">
+	<extensions>
+		<add assembly="NLog.Targets.Loggly" />
+	</extensions>
+	<targets async="true">
+		<target name="logconsole" xsi:type="ColoredConsole" />
+		<target name="Loggly" xsi:type="Loggly" layout="${message}" />
+	</targets>
+	<rules>
+		<logger name="*" minlevel="Info" writeTo="logconsole,Loggly" />
+	</rules>
+</nlog>
+```
 
 ### Loggly EndPoint Config
 Loggly Config can be configured through the NLog Target properties:
 
-	<target name="Loggly" xsi:type="Loggly" layout="${message}" applicationName="MyApp" customerToken="your token" endpointHostname="logs-01.loggly.com" endpointPort="443" logTransport="https">
-	</target>
+```xml
+<target name="Loggly" xsi:type="Loggly" layout="${message}" applicationName="MyApp" customerToken="your token" endpointHostname="logs-01.loggly.com" endpointPort="443" logTransport="https">
+</target>
+```
 
 The following settings are supported:
 
@@ -57,24 +59,30 @@ The following settings are supported:
 
 Loggly Tags can be added like this:
 
-	<target name="Loggly" xsi:type="Loggly" layout="${message}">
-	  <tag name="{logger}" />
-	</target>
+```xml
+<target name="Loggly" xsi:type="Loggly" layout="${message}">
+	<tag name="${exception:format=type}" />
+</target>
+```
 
 ### MetaData
 
 Loggly includes NLog LogEvent Properties automatically, but one can also add extra context like this:
 
-	<target name="Loggly" xsi:type="Loggly" layout="${message}">
-	  <contextproperty name="HostName" layout="${machinename}" />
-	  <contextproperty name="ThreadId" layout="${threadid}" />
-	</target>
+```xml
+<target name="Loggly" xsi:type="Loggly" layout="${message}">
+	<contextproperty name="HostName" layout="${machinename}" />
+	<contextproperty name="ThreadId" layout="${threadid}" />
+</target>
+```
 
 ### MappedDiagnosticsLogicalContext (MDLC)
 
-Loggly can also include async context from NLog MDLC (Contains state from NetCore ILogger.BeginScope)
+Loggly can also include async context from NLog MDLC (Contains state from NetCore `ILogger.BeginScope()`)
 
-	<target name="Loggly" xsi:type="Loggly" layout="${message}" includeMdlc="true" />
+```xml
+<target name="Loggly" xsi:type="Loggly" layout="${message}" includeMdlc="true" />
+```
 
 ### Suppression
 Sometimes you might emit something to a flat file log that doesn't make sense in loggly, such as a delimiting line of dashes: ---------
