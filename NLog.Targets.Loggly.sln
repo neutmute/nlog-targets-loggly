@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.271
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31229.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLog.Targets.Loggly", "src\NLog.Targets.Loggly\NLog.Targets.Loggly.csproj", "{FBA31C0A-88AC-4362-A6B2-6C6F6BEA9553}"
 EndProject
@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NLog.Targets.Loggly.Tests",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6EDCD2C2-7A69-4AD9-B1F4-9EC22D351637}"
 	ProjectSection(SolutionItems) = preProject
-		build.common.ps1 = build.common.ps1
+		build-common.ps1 = build-common.ps1
 		build.ps1 = build.ps1
 		README.md = README.md
 	EndProjectSection

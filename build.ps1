@@ -3,7 +3,7 @@ param(
     [string]$configuration = "Release"
 )
 
-. ".\build.common.ps1"
+. ".\build-common.ps1"
 
 $solutionName = "NLog.Targets.Loggly"
 $sourceUrl = "https://github.com/neutmute/nlog-targets-loggly"
