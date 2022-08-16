@@ -155,7 +155,7 @@ namespace NLog.Targets.Loggly.Tests
             {
                 XmlReader reader = XmlReader.Create(stringReader);
 
-                return new XmlLoggingConfiguration(reader, null, false, logFactory);
+                return new XmlLoggingConfiguration(reader, null, logFactory);
             }
         }
     }
