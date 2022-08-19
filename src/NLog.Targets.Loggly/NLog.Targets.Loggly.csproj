@@ -25,8 +25,8 @@ Changed from TargetWithContext to AsyncTaskTarget along with new settings:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="loggly-csharp" Version="4.6.1.103" />
-    <PackageReference Include="NLog" Version="4.6.8" />
+    <PackageReference Include="loggly-csharp" Version="4.6.1.116" />
+    <PackageReference Include="NLog" Version="4.7.15" />
   </ItemGroup>
 
 </Project>

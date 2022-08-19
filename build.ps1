@@ -31,12 +31,10 @@ function init {
 }
 
 function restorePackages{
-    _WriteOut -ForegroundColor $ColorScheme.Banner "nuget restore"
+    _WriteOut -ForegroundColor $ColorScheme.Banner "dotnet restore"
     
     New-Item -Force -ItemType directory -Path $packagesFolder
     _DownloadNuget $packagesFolder
-    nuget restore
-    #nuget install gitlink -SolutionDir "$rootFolder" -ExcludeVersion
 
 	dotnet restore "$rootFolder\src\$solutionName"
 
@@ -44,14 +42,9 @@ function restorePackages{
 }
 
 function nugetPack{
-    _WriteOut -ForegroundColor $ColorScheme.Banner "Nuget pack"
-    
+    _WriteOut -ForegroundColor $ColorScheme.Banner "dotnet pack"
 
-    if(!(Test-Path Env:\nuget )){
-        $env:nuget = nuget
-    }
-
-	dotnet pack "$rootFolder\src\$solutionName" --configuration $configuration --include-symbols --no-build --no-restore --output $outputFolder
+	dotnet pack "$rootFolder\src\$solutionName" --configuration $configuration --no-build --no-restore --output $outputFolder -p:PackageVersion=$env:PackageVersion -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
 
 	checkExitCode
 }
@@ -77,7 +70,7 @@ function buildSolution{
 	    
 	New-Item -Force -ItemType directory -Path $outputFolder
 
-    dotnet build "$rootFolder\$solutionName.sln" --configuration $configuration -p:PackageVersion=$env:PackageVersion
+    dotnet build "$rootFolder\$solutionName.sln" --configuration $configuration -p:PackageVersion=$env:PackageVersion -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
 
 	checkExitCode
 }
